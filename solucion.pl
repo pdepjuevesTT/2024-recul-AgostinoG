@@ -17,16 +17,13 @@ viveEnLugarCopado(Persona):-
     Banios > 1.
 viveEnLugarCopado(Persona):-
     viveEn(Persona, loft(Anio),_),
-    Anio > 2015.
+    Anio > 2015.   
 
-cuantasPersonasViven(Persona,Barrio, Personas):-
-    viveEn(Persona,_,Barrio),
-    findall(Persona, viveEn(Persona,_,Barrio), Personas).
-    
 
 esUnBarrioCopado(Barrio):-
     viveEn(Persona, _ , Barrio),
-    forall(cuantasPersonasViven(Persona,Barrio, Personas), viveEnLugarCopado(Persona)).
+    forall((viveEn(Persona2,_, Barrio), Persona \= Persona2), viveEnLugarCopado(Persona2)).
+    
 
 esPropiedadBarata(casa(Metros)):-
     Metros < 90.
@@ -35,15 +32,28 @@ esPropiedadBarata(loft(Anio)):-
 esPropiedadBarata(departamento(ambientes(Ambientes),banios(_))):-
     Ambientes < 3.
 
+
 esUnBarrioCaro(Barrio):-
     viveEn(_, Propiedad , Barrio),
-    forall(viveEn(_, Propiedad, Barrio), not(esPropiedadBarata(Propiedad))).
+    forall((viveEn(_, Propiedad2, Barrio), Propiedad \= Propiedad2) , not(esPropiedadBarata(Propiedad2))).
 
-vale(juan, 150000).
-vale(nico, 80000).
-vale(alf, 75000).
-vale(julian, 140000).
-vale(vale, 95000).
-vale(fer, 60000).
+
+tasa(juan, 150000).
+tasa(nico, 80000).
+tasa(alf, 75000).
+tasa(julian, 140000).
+tasa(vale, 95000).
+tasa(fer, 60000).
 
 sublista([],[]).
+sublista([_|Cola], Sublista):- sublista(Cola,Sublista).
+sublista([Cabeza|Cola],[Cabeza|Sublista]):-sublista(Cola,Sublista).
+
+comprar(Valor, Casas):-
+    findall(Casa, tasa(Persona,Valor), CasasPosibles),
+    sublista(CasasPosibles, Casas),
+    Casas \= [].
+
+quieroComprar(250000,Casas,MeQuedoCon):-
+    tasa(Persona, Valor),
+    forall((comprar(Valor2,Casas), Valor \= Valor2), 250000 - Valor2 = MeQuedoCon).
